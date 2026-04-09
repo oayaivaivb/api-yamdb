@@ -24,12 +24,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+<<<<<<< HEAD
     'rest_framework.authtoken',
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
     'reviews.apps.ReviewsConfig',
     'titles.apps.TitlesConfig'
 
+=======
+    'reviews'
+>>>>>>> f9b892d (отзывы и комменты с заглушками)
 ]
 
 MIDDLEWARE = [
