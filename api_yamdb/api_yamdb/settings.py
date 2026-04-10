@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
     'reviews.apps.ReviewsConfig',
-    'titles.apps.TitlesConfig'
+    'titles.apps.TitlesConfig',
+    'django_filters',
 
 ]
 
@@ -115,6 +116,9 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
 }
 
