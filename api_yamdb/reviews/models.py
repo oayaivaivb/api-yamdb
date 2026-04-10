@@ -1,14 +1,14 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
-<<<<<<< HEAD
-# Create your models here.
-=======
 
 class Review(models.Model):
-    title = models.IntegerField()  # потом ForeignKey на Title
-    author = models.IntegerField()  # потом ForeignKey на User
+    title = models.IntegerField()  # временно
+    author = models.IntegerField()  # временно
     text = models.TextField()
-    score = models.IntegerField()
+    score = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -18,6 +18,7 @@ class Review(models.Model):
                 name='unique_review'
             )
         ]
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.text[:15]
@@ -29,10 +30,12 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    author = models.IntegerField()  # потом ForeignKey на User
+    author = models.IntegerField()  # временно
     text = models.TextField()
     pub_date = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-pub_date']
+
     def __str__(self):
         return self.text[:15]
->>>>>>> f9b892d (отзывы и комменты с заглушками)

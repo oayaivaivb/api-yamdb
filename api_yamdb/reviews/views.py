@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 from django.shortcuts import render
 
-# Create your views here.
-=======
+
 from rest_framework import viewsets
 
 from .models import Review, Comment
@@ -14,8 +12,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly]
 
     def get_queryset(self):
-        title_id = self.kwargs.get('title_id')
-        return Review.objects.filter(title=title_id)
+        return Review.objects.filter(
+            title=self.kwargs.get('title_id')
+        )
 
     def perform_create(self, serializer):
         serializer.save(
@@ -28,12 +27,12 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly]
 
     def get_queryset(self):
-        review_id = self.kwargs.get('review_id')
-        return Comment.objects.filter(review_id=review_id)
+        return Comment.objects.filter(
+            review=self.kwargs.get('review_id')
+        )
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user.id,
-            review_id=self.kwargs.get('review_id')
+            review=self.kwargs.get('review_id')
         )
->>>>>>> f9b892d (отзывы и комменты с заглушками)

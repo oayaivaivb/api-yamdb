@@ -1,9 +1,6 @@
 from django.contrib import admin
-<<<<<<< HEAD
 from django.urls import include, path
-=======
 from django.urls import path, include
->>>>>>> f9b892d (отзывы и комменты с заглушками)
 from django.views.generic import TemplateView
 
 
