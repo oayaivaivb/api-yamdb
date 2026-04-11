@@ -10,10 +10,6 @@ urlpatterns = [
         include('api.urls')
     ),
     path(
-        'api/v1/',
-        include('reviews.urls')
-    ),
-    path(
         'admin/',
         admin.site.urls
     ),
