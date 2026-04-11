@@ -1,19 +1,9 @@
-from django.contrib import admin
-from django.urls import include, path
-from django.views.generic import TemplateView
+from django.urls import path
 
 from .views import signup, token
 
 
 urlpatterns = [
-    path(
-        'signup/',
-        view=signup,
-        name='signup'
-    ),
-    path(
-        'token/',
-        view=token,
-        name='token'
-    ),
+    path('signup/', signup, name='signup'),
+    path('token/', token, name='token'),
 ]
