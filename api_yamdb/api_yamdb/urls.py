@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path(
-        'api/v1/',
+        'api/',
         include('api.urls')
     ),
     path(

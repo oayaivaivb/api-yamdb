@@ -8,7 +8,7 @@ from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 
-from .models import User, Review, Comment, Category, Genre, Title
+from reviews.models import User, Review, Comment, Category, Genre, Title
 
 
 class SignUpSerializer(serializers.Serializer):

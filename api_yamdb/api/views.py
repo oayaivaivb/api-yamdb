@@ -8,14 +8,18 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 
-from .models import User, Review, Comment, Category, Genre, Title
-from api.permissions import IsAdmin
-from api.serializers import (
+from reviews.models import User, Review, Comment, Category, Genre, Title
+from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrModeratorOrAdmin
+from .serializers import (
     SignUpSerializer,
     TokenSerializer,
     UserSerializer,
     ReviewSerializer,
-    CommentSerializer
+    CommentSerializer,
+    GenreSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
+    CategorySerializer
 )
 
 
@@ -83,7 +87,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrModeratorOrAdmin]
 
     def get_queryset(self):
         return Review.objects.filter(
@@ -99,7 +103,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrModeratorOrAdmin]
 
     def get_queryset(self):
         return Comment.objects.filter(
