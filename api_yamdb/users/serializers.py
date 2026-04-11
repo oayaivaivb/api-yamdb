@@ -79,5 +79,4 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'role'
         )
-        
         model = User

@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'reviews.apps.ReviewsConfig',
     'titles.apps.TitlesConfig',
-    'reviews'
 ]
 
 MIDDLEWARE = [
@@ -107,7 +106,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-
+С
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)

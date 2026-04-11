@@ -1,12 +1,11 @@
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import status, viewsets
+from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import SignUpSerializer, TokenSerializer, UserSerializer
 from .models import User
-
-
+from api.permissions import IsAdmin
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -28,13 +27,25 @@ def token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class USerViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
-    pagination_class = LimitOffsetPagination
 
-    def perform_create(self, serializer):
-        """Сохраняет пост с автором = текущий пользователь."""
-        serializer.save(author=self.request.user)
+    def get_permissions(self):
+        if self.action == 'me':
+            return (IsAuthenticated(),)
+        return (IsAdmin(),)
 
+    @action(detail=False, methods=['get', 'patch'], url_path='me')
+    def me(self, request):
+        user = request.user
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data)
+
+        data = request.data.copy()
+        data.pop('role', None)
+        serializer = self.get_serializer(user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
