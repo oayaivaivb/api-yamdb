@@ -11,7 +11,14 @@ from .models import User
 
 
 class SignUpSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z',
+        max_length=150,
+        required=True,
+        error_messages={
+            'invalid': 'Username содержит недопустимые символы.'
+        }
+    )
     email = serializers.EmailField(max_length=254)
 
     @staticmethod
@@ -75,12 +82,10 @@ class TokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField(max_length=6)
 
     def validate(self, data):
-        current_username = data.get('username')
-        try:
-            user = User.objects.get(username=current_username)
-        except User.DoesNotExist:
+        user = self.context.get('user')
+        if not user:
             raise serializers.ValidationError(
-                'Пользователь с таким username не найден.')
+                'Пользователь не передан в контекст.')
 
         current_code = data.get('confirmation_code')
         if current_code != user.confirmation_code:
