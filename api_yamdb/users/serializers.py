@@ -1,36 +1,73 @@
 import string
 import random
 
+from django.core.mail import send_mail
+from django.conf import settings
+from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 
 from .models import User
-from .validators import validate_username, validate_email
 
 
 class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(max_length=254)
 
-    def validate_username(self, value):
-        return validate_username(value, instance=None)
+    @staticmethod
+    def generate_code():
+        return ''.join(random.choices(
+            string.ascii_uppercase + string.digits,
+            k=6
+        ))
 
-    def validate_email(self, value):
-        return validate_email(value, instance=None)
+    def send_confirmation_email(self, user):
+        send_mail(
+            subject='Код подтверждения YaMDb',
+            message=f'Ваш код подтверждения: {user.confirmation_code}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Имя "me" использовать запрещено.')
+        return value
 
     def create(self, validated_data):
-        user = User(
-            username=validated_data['username'],
-            email=validated_data['email']
-        )
-        user.set_unusable_password()
-        code = ''.join(
-            random.choices(string.ascii_uppercase + string.digits, k=6)
-        )
-        user.confirmation_code = code
-        user.save()
-        print(f'Код подтверждения для {user.username}: {code}')  # временно
-        return user
+        username = validated_data['username']
+        email = validated_data['email']
+        user = self.get_or_create_user(username, email)
+        self.send_confirmation_email(user)
+        return {'username': user.username, 'email': user.email}
+
+    def get_or_create_user(self, username, email):
+        code = self.generate_code()
+        try:
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    'email': email,
+                    'confirmation_code': code,
+                }
+            )
+            if not created:
+                if user.email != email:
+                    raise serializers.ValidationError(
+                        {'email': 'Email не совпадает с зарегистрированным для этого username.'}
+                    )
+                user.confirmation_code = code
+                user.save(update_fields=['confirmation_code'])
+            else:
+                user.set_unusable_password()
+                user.save(update_fields=['password'])
+            return user
+        except IntegrityError:
+            raise serializers.ValidationError(
+                {'email': 'Пользователь с таким email уже существует.'}
+            )
 
 
 class TokenSerializer(serializers.Serializer):
@@ -59,10 +96,25 @@ class TokenSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
-        return validate_username(value, instance=self.instance)
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Имя "me" использовать запрещено.')
+        queryset = User.objects.filter(username=value)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError(
+                'Пользователь с таким username уже существует.')
+        return value
 
     def validate_email(self, value):
-        return validate_email(value, instance=self.instance)
+        queryset = User.objects.filter(email=value)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError(
+                'Пользователь с таким email уже существует.')
+        return value
 
     def create(self, validated_data):
         user = User(**validated_data)

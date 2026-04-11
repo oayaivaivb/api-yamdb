@@ -91,6 +91,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+DEFAULT_FROM_EMAIL = 'no-reply@yamdb.ru'
+
 
 # Internationalization
 
@@ -106,7 +109,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-С
+
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
