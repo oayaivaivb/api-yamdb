@@ -1,8 +1,9 @@
-import datetime as dt
+"""Модуль валидаторов для API приложения."""
+
 from django.core.exceptions import ValidationError
 
 
-def validate_year(value):
-    year = dt.date.today().year
-    if value > year:
-        raise ValidationError('Год выпуска не может быть больше текущего')
+def validate_username_not_me(value):
+    """Валидатор запрещающий использовать username 'me'."""
+    if value == 'me':
+        raise ValidationError('Имя "me" использовать запрещено.')
