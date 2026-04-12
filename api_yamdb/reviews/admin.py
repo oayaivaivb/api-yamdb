@@ -1,5 +1,6 @@
 """Модуль административной панели для приложения reviews."""
 from django.contrib import admin
+
 from .models import Review, Comment
 
 
