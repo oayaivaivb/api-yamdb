@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+
 import os
 import sys
 
 
 def main():
+    """Запуск административных задач Django."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_yamdb.settings')
     try:
         from django.core.management import execute_from_command_line
