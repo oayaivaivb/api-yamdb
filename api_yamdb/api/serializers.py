@@ -104,7 +104,7 @@ class TokenSerializer(serializers.Serializer):
         user.confirmation_code = ''
         user.save(update_fields=['confirmation_code'])
         refresh = RefreshToken.for_user(user)
-        return {'access': str(refresh.access_token)}
+        return {'token': str(refresh.access_token)}
 
 
 class UserSerializer(serializers.ModelSerializer):
