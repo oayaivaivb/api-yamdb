@@ -43,3 +43,4 @@ sqlparse==0.5.2
 toml==0.10.2
 uritemplate==4.1.1
 urllib3==2.3.0
+django-filter==24.3
