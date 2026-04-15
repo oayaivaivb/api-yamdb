@@ -82,7 +82,6 @@ class SignUpSerializer(serializers.Serializer):
 class TokenSerializer(serializers.Serializer):
     """Сериализатор для получения JWT токена."""
 
-    username = serializers.CharField(max_length=150)
     confirmation_code = serializers.CharField(max_length=6)
 
     def validate(self, data):
