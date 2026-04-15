@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 
 from reviews.models import User, Review, Comment, Category, Genre, Title
+from .validators import validate_username_not_me
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -43,11 +44,7 @@ class SignUpSerializer(serializers.Serializer):
 
     def validate_username(self, value):
         """Валидация username."""
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Имя "me" использовать запрещено.'
-            )
-        return value
+        return validate_username_not_me(value)
 
     def create(self, validated_data):
         """Создание пользователя."""
@@ -118,10 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         """Валидация username."""
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Имя "me" использовать запрещено.'
-            )
+        validate_username_not_me(value)
 
         queryset = User.objects.filter(username=value)
         if self.instance:
