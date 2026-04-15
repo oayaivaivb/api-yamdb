@@ -38,15 +38,7 @@ def signup(request):
 @permission_classes([AllowAny])
 def token(request):
     """Получение JWT токена по username и confirmation_code."""
-    username = request.data.get('username')
-
-    if not username:
-        return Response(
-            {'detail': 'Username is required'},
-            status=status.HTTP_400_BAD_REQUEST)
-
-    user = get_object_or_404(User, username=username)
-    serializer = TokenSerializer(data=request.data, context={'user': user})
+    serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     return Response({'token': serializer.validated_data['token']})
 
