@@ -116,16 +116,16 @@ class Title(models.Model):
         blank=True
     )
     genre = models.ManyToManyField(
-        'Жанр',
         Genre,
         related_name='titles',
+        verbose_name='Жанр'
     )
     category = models.ForeignKey(
-        'Категория',
         Category,
         on_delete=models.SET_NULL,
         null=True,
         related_name='titles',
+        verbose_name='Категория'
     )
 
     class Meta:
@@ -142,16 +142,16 @@ class Review(models.Model):
     """Модель отзыва на произведение."""
 
     title = models.ForeignKey(
-        'Произведение',
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
+        verbose_name='Произведение'
     )
     author = models.ForeignKey(
-        'Автор',
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='reviews',
+        verbose_name='Автор'
     )
     text = models.TextField('Текст отзыва')
     score = models.IntegerField(
@@ -179,16 +179,16 @@ class Comment(models.Model):
     """Модель комментария к отзыву."""
 
     review = models.ForeignKey(
-        'Отзыв',
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
+        verbose_name='Отзыв',
     )
     author = models.ForeignKey(
-        'Автор',
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='comments',
+        verbose_name='Автор',
     )
     text = models.TextField('Текст комментария')
     pub_date = models.DateTimeField(
