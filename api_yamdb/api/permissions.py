@@ -12,21 +12,22 @@ class IsAdmin(permissions.BasePermission):
                 and request.user.is_admin())
 
 
-class IsAdminOrReadOnly(IsAdmin):
+class IsAdminOrReadOnly(permissions.BasePermission):
     """Чтение для всех, запись только для администраторов."""
 
     def has_permission(self, request, view):
         """Проверка прав на уровне запроса."""
         return (request.method in permissions.SAFE_METHODS
-                or super().has_permission(request, view))
+                or (request.user and request.user.is_authenticated
+                    and request.user.is_admin()))
 
 
-class IsAuthorOrModeratorOrAdmin(IsAdminOrReadOnly):
+class IsAuthorOrModeratorOrAdmin(permissions.BasePermission):
     """Разрешение для автора, модератора или администратора."""
 
     def has_permission(self, request, view):
         """Проверка прав на уровне запроса."""
-        return (super().has_permission(request, view)
+        return (request.method in permissions.SAFE_METHODS
                 or (request.user and request.user.is_authenticated))
 
     def has_object_permission(self, request, view, obj):
