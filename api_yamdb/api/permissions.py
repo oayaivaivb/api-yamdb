@@ -1,38 +1,30 @@
-"""Модуль с классами разрешений (permissions) для API."""
-
 from rest_framework import permissions
 
 
 class IsAdmin(permissions.BasePermission):
     """Разрешение только для администраторов."""
-
+    
     def has_permission(self, request, view):
-        """Проверка прав на уровне запроса."""
-        return (request.user and request.user.is_authenticated
+        return (request.user and request.user.is_authenticated 
                 and request.user.is_admin())
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Чтение для всех, запись только для администраторов."""
-
+    
     def has_permission(self, request, view):
-        """Проверка прав на уровне запроса."""
         return (request.method in permissions.SAFE_METHODS
-                or (request.user and request.user.is_authenticated
+                or (request.user and request.user.is_authenticated 
                     and request.user.is_admin()))
 
 
-class IsAuthorOrModeratorOrAdmin(permissions.BasePermission):
-    """Разрешение для автора, модератора или администратора."""
-
-    def has_permission(self, request, view):
-        """Проверка прав на уровне запроса."""
-        return (request.method in permissions.SAFE_METHODS
-                or (request.user and request.user.is_authenticated))
+class IsAuthorOrModeratorOrAdmin(IsAdminOrReadOnly):
+    """Автор, модератор или админ."""
 
     def has_object_permission(self, request, view, obj):
-        """Проверка прав на уровне объекта."""
-        return (request.method in permissions.SAFE_METHODS
-                or request.user == obj.author
-                or request.user.is_moderator()
-                or request.user.is_admin())
+        return (
+            request.method in permissions.SAFE_METHODS
+            or obj.author == request.user
+            or request.user.is_moderator()
+            or request.user.is_admin()
+        )

@@ -132,7 +132,7 @@ class Review(models.Model):
         related_name='reviews'
     )
     text = models.TextField()
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField(auto_now_add=True)
