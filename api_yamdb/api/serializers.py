@@ -6,7 +6,7 @@ import random
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import IntegrityError
-from django.http import Http404
+from django.shortcuts import get_object_or_404
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
@@ -90,10 +90,7 @@ class TokenSerializer(serializers.Serializer):
         username = data.get('username')
         confirmation_code = data.get('confirmation_code')
 
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise Http404('User not found')
+        user = get_object_or_404(User, username=username)
 
         if confirmation_code != user.confirmation_code:
             raise serializers.ValidationError('Неверный код подтверждения.')
