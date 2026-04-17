@@ -91,16 +91,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrModeratorOrAdmin]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
+    def get_title(self):
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
+
     def get_queryset(self):
-        """Получение списка отзывов для конкретного произведения."""
-        title_id = self.kwargs.get('title_id')
-        return Review.objects.filter(title_id=title_id)
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        """Создание нового отзыва."""
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(
+            author=self.request.user,
+            title=self.get_title()
+        )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -110,17 +111,19 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrModeratorOrAdmin]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
+    def get_review(self):
+        return get_object_or_404(Review, id=self.kwargs.get('review_id'))
+
+
     def get_queryset(self):
-        """Получение списка комментариев для конкретного отзыва."""
-        review_id = self.kwargs.get('review_id')
-        return Comment.objects.filter(review_id=review_id)
+        return self.get_review().comments.all()
+
 
     def perform_create(self, serializer):
-        """Создание нового комментария."""
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id)
-        serializer.save(author=self.request.user, review=review)
-
+        serializer.save(
+            author=self.request.user,
+            review=self.get_review()
+    )
 
 class ListCreateDestroyViewSet(mixins.ListModelMixin,
                                mixins.CreateModelMixin,
