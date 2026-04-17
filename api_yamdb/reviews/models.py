@@ -84,50 +84,42 @@ class User(AbstractUser):
         ordering = ['username']
 
 
-class Category(models.Model):
-    """Модель категории произведения."""
-
+class BaseCategoryGenreModel(models.Model):
+    """Абстрактная модель для категорий и жанров."""
     name = models.CharField(
-        'Название',
-        max_length=MAX_NAME_LEN,
+        max_length=256,
+        verbose_name='Название'
     )
     slug = models.SlugField(
-        'Слаг',
         unique=True,
-        max_length=MAX_SLUG_LEN
+        max_length=50,
+        verbose_name='Слаг'
     )
+
+    class Meta:
+        abstract = True
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(BaseCategoryGenreModel):
+    """Модель категории произведения."""
 
     class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-    def __str__(self):
-        """Строковое представление категории."""
-        return self.name
 
-
-class Genre(models.Model):
+class Genre(BaseCategoryGenreModel):
     """Модель жанра произведения."""
-
-    name = models.CharField(
-        'Название',
-        max_length=MAX_NAME_LEN,
-    )
-    slug = models.SlugField(
-        'Слаг',
-        unique=True,
-        max_length=MAX_SLUG_LEN
-    )
 
     class Meta:
         ordering = ('name',)
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-
-    def __str__(self):
-        """Строковое представление жанра."""
-        return self.name
 
 
 class Title(models.Model):
@@ -137,7 +129,7 @@ class Title(models.Model):
         'Название',
         max_length=MAX_NAME_LEN
     )
-    year = models.IntegerField(
+    year = models.SmallIntegerField(
         'Год выпуска',
         validators=[validate_year]
     )
@@ -154,6 +146,7 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='titles',
         verbose_name='Категория'
     )

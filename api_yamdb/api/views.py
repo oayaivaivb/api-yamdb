@@ -2,6 +2,7 @@
 
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets, filters, mixins
 from rest_framework.decorators import api_view, permission_classes, action
@@ -9,7 +10,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from reviews.models import User, Review, Comment, Category, Genre, Title
+from .filters import TitleFilter
+from reviews.models import User, Review, Category, Genre, Title
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrModeratorOrAdmin
 from .serializers import (
     SignUpSerializer,
@@ -114,16 +116,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_review(self):
         return get_object_or_404(Review, id=self.kwargs.get('review_id'))
 
-
     def get_queryset(self):
         return self.get_review().comments.all()
-
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
             review=self.get_review()
-    )
+        )
+
 
 class ListCreateDestroyViewSet(mixins.ListModelMixin,
                                mixins.CreateModelMixin,
@@ -161,38 +162,15 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
     ).order_by('name')
+
     permission_classes = (IsAdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
-    serializer_class = TitleWriteSerializer
+
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         """Выбор сериализатора в зависимости от действия."""
         if self.action in ('list', 'retrieve'):
             return TitleReadSerializer
         return TitleWriteSerializer
-
-    def get_queryset(self):
-        """Фильтрация произведений по параметрам запроса."""
-        queryset = super().get_queryset()
-
-        # Фильтрация по жанру
-        genre_slug = self.request.query_params.get('genre')
-        if genre_slug:
-            queryset = queryset.filter(genre__slug=genre_slug)
-
-        # Фильтрация по категории
-        category_slug = self.request.query_params.get('category')
-        if category_slug:
-            queryset = queryset.filter(category__slug=category_slug)
-
-        # Фильтрация по году
-        year = self.request.query_params.get('year')
-        if year:
-            queryset = queryset.filter(year=year)
-
-        # Поиск по имени
-        name = self.request.query_params.get('name')
-        if name:
-            queryset = queryset.filter(name__icontains=name)
-
-        return queryset

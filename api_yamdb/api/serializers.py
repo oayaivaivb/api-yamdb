@@ -217,7 +217,10 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
+        read_only_fields = fields
 
 
 class TitleWriteSerializer(serializers.ModelSerializer):
@@ -233,3 +236,6 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
+
+    def to_representation(self, instance):
+        return TitleReadSerializer(instance, context=self.context).data
