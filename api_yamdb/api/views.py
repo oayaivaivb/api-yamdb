@@ -56,32 +56,32 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """Назначение прав доступа в зависимости от действия."""
-        if self.action == 'me':
+        if self.action in ['me', 'get_me', 'patch_me']:
             return (IsAuthenticated(),)
         return (IsAdmin(),)
 
-    @action(detail=False, methods=['get', 'patch', 'delete'], url_path='me')
+    @action(detail=False, methods=[], url_path='me')
     def me(self, request):
-        """Получение, обновление данных текущего пользователя."""
-        user = request.user
+        """Точка входа для /users/me/"""
+        pass
 
-        if request.method == 'DELETE':
-            return Response(
-                {'detail': 'Method DELETE not allowed'},
-                status=status.HTTP_405_METHOD_NOT_ALLOWED
-            )
+    @me.mapping.get
+    def get_me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
-        if request.method == 'GET':
-            serializer = self.get_serializer(user)
-            return Response(serializer.data)
-
-        # PATCH запрос
+    @me.mapping.patch
+    def patch_me(self, request):
         data = request.data.copy()
         data.pop('role', None)
-        serializer = self.get_serializer(user, data=data, partial=True)
+        serializer = self.get_serializer(request.user, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+    @me.mapping.delete
+    def delete_me(self, request):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
