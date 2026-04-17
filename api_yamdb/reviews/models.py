@@ -52,6 +52,7 @@ class User(AbstractUser):
         'Email',
         max_length=MAX_EMAIL_LEN,
         unique=True,
+        verbose_name='Email'
     )
     role = models.CharField(
         'Роль',
@@ -63,11 +64,13 @@ class User(AbstractUser):
         'Биография',
         max_length=MAX_BIO_LEN,
         blank=True,
+        verbose_name='Биография'
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
         max_length=MAX_CONFIRMATION_CODE_LEN,
         blank=True,
+        verbose_name='Код подтверждения'
     )
 
     def is_admin(self):
@@ -137,6 +140,7 @@ class Title(models.Model):
         'Описание',
         blank=True
     )
+    description = models.TextField(blank=True, verbose_name='Описание')
     genre = models.ManyToManyField(
         Genre,
         related_name='titles',
@@ -186,14 +190,12 @@ class Review(BaseContent):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Произведение'
+        related_name='reviews'
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Автор'
+        related_name='reviews'
     )
     score = models.PositiveSmallIntegerField(
         'Оценка',
@@ -217,8 +219,7 @@ class Comment(BaseContent):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Отзыв',
+        related_name='comments'
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,

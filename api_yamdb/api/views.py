@@ -31,18 +31,39 @@ from .serializers import (
 def signup(request):
     """Регистрация нового пользователя и отправка кода подтверждения."""
     serializer = SignUpSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def token(request):
     """Получение JWT токена по username и confirmation_code."""
-    serializer = TokenSerializer(data=request.data)
+    username = request.data.get('username')
+    confirmation_code = request.data.get('confirmation_code')
+
+    if not username or not confirmation_code:
+        return Response(
+            {'detail': 'Username and confirmation_code are required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response(
+            {'detail': 'User not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = TokenSerializer(data=request.data, context={'user': user})
     serializer.is_valid(raise_exception=True)
-    return Response({'token': serializer.validated_data['token']})
+    return Response(
+        {'access': serializer.validated_data['access']},
+        status=status.HTTP_200_OK
+    )
 
 
 class UserViewSet(viewsets.ModelViewSet):
