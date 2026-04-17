@@ -3,50 +3,80 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+    RegexValidator
+)
 
 from .validators import validate_year
 
 
+USER = 'user'
+MODERATOR = 'moderator'
+ADMIN = 'admin'
+
 ROLE_CHOICES = [
-    ('user', 'Аутентифицированный пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Администратор'),
+    (USER, 'Аутентифицированный пользователь'),
+    (MODERATOR, 'Модератор'),
+    (ADMIN, 'Администратор'),
 ]
+
+MAX_ROLE_LEN = max(len(role) for role, _ in ROLE_CHOICES)
+
+MAX_USERNAME_LEN = 150
+MAX_EMAIL_LEN = 254
+MAX_BIO_LEN = 500
+MAX_CONFIRMATION_CODE_LEN = 6
+MAX_NAME_LEN = 256
+MAX_SLUG_LEN = 50
 
 
 class User(AbstractUser):
     """Модель пользователя с расширенными правами."""
+    username = models.CharField(
+        max_length=MAX_USERNAME_LEN,
+        unique=True,
+        validators=[
+            RegexValidator(
+                regex=r'^[\w.@+-]+\Z',
+                message='Username содержит недопустимые символы.'
+            )
+        ],
+        error_messages={
+            'unique': 'Пользователь с таким username уже существует.'
+        }
+    )
 
     email = models.EmailField(
         'Email',
-        max_length=254,
+        max_length=MAX_EMAIL_LEN,
         unique=True,
     )
     role = models.CharField(
         'Роль',
-        max_length=20,
+        max_length=MAX_ROLE_LEN,
         choices=ROLE_CHOICES,
-        default='user',
+        default=USER,
     )
     bio = models.TextField(
         'Биография',
-        max_length=500,
+        max_length=MAX_BIO_LEN,
         blank=True,
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
-        max_length=6,
+        max_length=MAX_CONFIRMATION_CODE_LEN,
         blank=True,
     )
 
     def is_admin(self):
         """Проверка, является ли пользователь администратором."""
-        return self.role == 'admin' or self.is_superuser
+        return self.role == ADMIN or self.is_superuser
 
     def is_moderator(self):
         """Проверка, является ли пользователь модератором."""
-        return self.role == 'moderator'
+        return self.role == MODERATOR
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -59,12 +89,12 @@ class Category(models.Model):
 
     name = models.CharField(
         'Название',
-        max_length=256,
+        max_length=MAX_NAME_LEN,
     )
     slug = models.SlugField(
         'Слаг',
-        unique=True, 
-        max_length=50
+        unique=True,
+        max_length=MAX_SLUG_LEN
     )
 
     class Meta:
@@ -82,12 +112,12 @@ class Genre(models.Model):
 
     name = models.CharField(
         'Название',
-        max_length=256,
+        max_length=MAX_NAME_LEN,
     )
     slug = models.SlugField(
         'Слаг',
         unique=True,
-        max_length=50
+        max_length=MAX_SLUG_LEN
     )
 
     class Meta:
@@ -105,7 +135,7 @@ class Title(models.Model):
 
     name = models.CharField(
         'Название',
-        max_length=256
+        max_length=MAX_NAME_LEN
     )
     year = models.IntegerField(
         'Год выпуска',
