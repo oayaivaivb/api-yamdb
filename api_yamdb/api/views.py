@@ -56,7 +56,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """Назначение прав доступа в зависимости от действия."""
-        if self.action in ['me', 'get_me', 'patch_me']:
+        if self.action in ['me', 'get_me', 'patch_me', 'delete_me']:
             return (IsAuthenticated(),)
         return (IsAdmin(),)
 
