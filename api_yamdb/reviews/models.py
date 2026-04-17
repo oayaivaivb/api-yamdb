@@ -168,7 +168,26 @@ class Title(models.Model):
         return self.name
 
 
-class Review(models.Model):
+class BaseContent(models.Model):
+    """Абстрактная модель для отзывов и комментариев."""
+
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name='Автор'
+    )
+    text = models.TextField('Текст')
+    pub_date = models.DateTimeField(
+        'Дата публикации',
+        auto_now_add=True
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ['-pub_date']
+
+
+class Review(BaseContent):
     """Модель отзыва на произведение."""
 
     title = models.ForeignKey(
@@ -183,29 +202,23 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Автор'
     )
-    text = models.TextField('Текст отзыва')
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         'Оценка',
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
-    pub_date = models.DateTimeField(
-        'Дата публикации',
-        auto_now_add=True,
-    )
 
-    class Meta:
+    class Meta(BaseContent.Meta):
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
                 name='unique_review'
             )
         ]
-        ordering = ['-pub_date']
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
 
 
-class Comment(models.Model):
+class Comment(BaseContent):
     """Модель комментария к отзыву."""
 
     review = models.ForeignKey(
@@ -220,13 +233,7 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Автор',
     )
-    text = models.TextField('Текст комментария')
-    pub_date = models.DateTimeField(
-        'Дата публикации',
-        auto_now_add=True
-    )
 
-    class Meta:
-        ordering = ['-pub_date']
+    class Meta(BaseContent.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
