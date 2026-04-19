@@ -9,27 +9,14 @@ from django.core.validators import (
     RegexValidator
 )
 
-from .validators import validate_year
 
-
-USER = 'user'
-MODERATOR = 'moderator'
-ADMIN = 'admin'
-
-ROLE_CHOICES = [
-    (USER, 'Аутентифицированный пользователь'),
-    (MODERATOR, 'Модератор'),
-    (ADMIN, 'Администратор'),
-]
-
-MAX_ROLE_LEN = max(len(role) for role, _ in ROLE_CHOICES)
-
-MAX_USERNAME_LEN = 150
-MAX_EMAIL_LEN = 254
-MAX_BIO_LEN = 500
-MAX_CONFIRMATION_CODE_LEN = 6
-MAX_NAME_LEN = 256
-MAX_SLUG_LEN = 50
+from .validators import validate_year, validate_username_not_me
+from .constants import (
+    USER, MODERATOR, ADMIN,
+    ROLE_CHOICES, MAX_ROLE_LEN,
+    MAX_USERNAME_LEN, MAX_EMAIL_LEN, MAX_BIO_LEN, MAX_CONFIRMATION_CODE_LEN,
+    MAX_NAME_LEN, MAX_SLUG_LEN
+)
 
 
 class User(AbstractUser):
@@ -41,7 +28,8 @@ class User(AbstractUser):
             RegexValidator(
                 regex=r'^[\w.@+-]+\Z',
                 message='Username содержит недопустимые символы.'
-            )
+            ),
+            validate_username_not_me,
         ],
         error_messages={
             'unique': 'Пользователь с таким username уже существует.'
@@ -87,13 +75,13 @@ class User(AbstractUser):
 class BaseCategoryGenreModel(models.Model):
     """Абстрактная модель для категорий и жанров."""
     name = models.CharField(
-        max_length=256,
-        verbose_name='Название'
+        'Название',
+        max_length=MAX_NAME_LEN,
     )
     slug = models.SlugField(
+        'Слаг',
         unique=True,
-        max_length=50,
-        verbose_name='Слаг'
+        max_length=MAX_SLUG_LEN,
     )
 
     class Meta:
@@ -186,13 +174,11 @@ class Review(BaseContent):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews',
         verbose_name='Произведение'
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='reviews',
         verbose_name='Автор'
     )
     score = models.PositiveSmallIntegerField(
@@ -207,6 +193,7 @@ class Review(BaseContent):
                 name='unique_review'
             )
         ]
+        default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
 
@@ -217,16 +204,15 @@ class Comment(BaseContent):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='Отзыв',
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='Автор',
     )
 
     class Meta(BaseContent.Meta):
+        default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'

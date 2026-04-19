@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 
 from reviews.models import User, Review, Comment, Category, Genre, Title
-from .validators import validate_username_not_me
+from reviews.validators import validate_username_not_me
 
 
 class SignUpSerializer(serializers.Serializer):
