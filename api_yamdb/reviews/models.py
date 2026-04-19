@@ -9,7 +9,8 @@ from django.core.validators import (
     RegexValidator
 )
 
-from .validators import validate_year
+
+from .validators import validate_year, validate_username_not_me
 from .constants import (
     USER, MODERATOR, ADMIN,
     ROLE_CHOICES, MAX_ROLE_LEN,
@@ -27,7 +28,8 @@ class User(AbstractUser):
             RegexValidator(
                 regex=r'^[\w.@+-]+\Z',
                 message='Username содержит недопустимые символы.'
-            )
+            ),
+            validate_username_not_me,
         ],
         error_messages={
             'unique': 'Пользователь с таким username уже существует.'
