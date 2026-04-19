@@ -8,7 +8,9 @@ from .models import User, Category, Genre, Title, Review, Comment
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
-        ('Дополнительные поля', {'fields': ('bio', 'role', 'confirmation_code')}),
+        ('Дополнительные поля', {
+            'fields': ('bio', 'role', 'confirmation_code')
+        }),
     )
     list_display = BaseUserAdmin.list_display + ('role',)
     list_filter = BaseUserAdmin.list_filter + ('role',)
