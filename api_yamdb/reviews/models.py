@@ -174,13 +174,11 @@ class Review(BaseContent):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews',
         verbose_name='Произведение'
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='reviews',
         verbose_name='Автор'
     )
     score = models.PositiveSmallIntegerField(
@@ -195,6 +193,7 @@ class Review(BaseContent):
                 name='unique_review'
             )
         ]
+        default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
 
@@ -205,16 +204,15 @@ class Comment(BaseContent):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='Отзыв',
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='Автор',
     )
 
     class Meta(BaseContent.Meta):
+        default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
