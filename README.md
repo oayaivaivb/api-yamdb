@@ -33,12 +33,25 @@ git clone https://github.com/oayaivaivb/api_yamdb.git
 cd api_yamdb
 ```
 
-### Установка зависимостей
+### Создание виртуального окружения
+
+**Windows:**
 
 ```bash
 python -m venv venv
-venv\Scripts\activate  # Windows
+venv\Scripts\activate
+```
 
+**Linux / macOS:**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### Установка зависимостей
+
+```bash
 pip install -r requirements.txt
 ```
 
@@ -46,6 +59,12 @@ pip install -r requirements.txt
 
 ```bash
 python manage.py migrate
+```
+
+### Создание суперпользователя
+
+```bash
+python manage.py createsuperuser
 ```
 
 ### Запуск
