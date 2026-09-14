@@ -70,8 +70,6 @@ http://127.0.0.1:8000/redoc/
 
 Для наполнения базы используются подготовленные CSV-файлы из директории `static/data/`.
 
-При наличии management-команды:
-
 ```bash
 python manage.py import_csv
 ```
